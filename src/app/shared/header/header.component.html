@@ -1,0 +1,85 @@
+<nav class="navbar navbar-dark navbar-expand-lg bg-body-tertiary mb-4 sticky-top" [ngClass]="{'bg-dark': user, 'bg-primary': !user}">
+    <div class="container">
+        <a class="navbar-brand" routerLink="/">{{headerTitle}}</a>
+        <button class="navbar-toggler position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" *ngIf="productsAmount && productsAmount!=0 && isCollapsed">
+                {{productsAmount}}
+                <span class="visually-hidden">unread messages</span>
+            </span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup" #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link btn btn-light" style="color: black;" (click)="openGuide(howItWorks)">How it works?</a>
+                <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Products</a>
+                <a class="nav-link position-relative" routerLink="/carts" routerLinkActive="active">
+                    {{cartTitle}}
+                    <span class="badge text-bg-secondary bg-danger" *ngIf="productsAmount && productsAmount!=0 && user">{{productsAmount}}</span>
+                    <span class="badge text-bg-secondary bg-danger" *ngIf="ordersCount && ordersCount!=0 && !user">
+                        <app-notification-spinner *ngIf="notificationLoading"></app-notification-spinner>
+                        <span *ngIf="!notificationLoading">{{ordersCount}}</span>
+                    </span>
+                </a>
+                <a class="nav-link" routerLink="/previousOrders" routerLinkActive="active">{{user? 'My Orders' : 'Reviews'}}</a>
+                <li class="nav-item dropdown light" ngbDropdown>
+                    <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" ngbDropdownToggle id="dropdownBasic1" [ngStyle]="{ 'color': changeColor() }">
+                        Change mode
+                    </a>
+                    <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                        <li><a class="dropdown-item fw-bold" (click)="changeMode(false)">Admin</a></li>
+                        <li><a class="dropdown-item fw-bold" (click)="changeMode(true)">User</a></li>
+                    </ul>
+                </li>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<ng-template #howItWorks let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title">How it works?</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+	</div>
+	<div class="modal-body">
+		<p class="alert alert-primary" role="alert">There are two modes in this app. You can choose the mode from the Change Mode button.</p>
+        <p class="lead"><span class="badge text-bg-primary fs-5">The user mode</span><br>
+            <span class="fw-bold">Through the <span class="page-header">Products</span> page you can :-</span> <br>
+            1- Browse the avialable products. <br>
+            2- Filter the products by category. <br>
+            3- Add or remove a product from the cart. <br>
+            4- View the product details by clicking on it. <br>
+            <span class="fw-bold">Through the <span class="page-header">Cart</span> page you can :-</span>  <br>
+            1- View the cart details. <br>
+            2- Edit the cart by removing all the products or a single a product and change its amount. <br>
+            3- Make an order. <br>
+            <span class="fw-bold">Through the <span class="page-header">My Orders</span> page you can :-</span>  <br>
+            1- View your previous orders and whether they are pending, accepted or refused. <br>
+            2- View the details of the previous orders. <br>
+        </p>
+        <hr>
+        <p class="lead"><span class="badge text-bg-primary fs-5">The Admin mode</span><br>
+            <span class="fw-bold">Through the <span class="page-header">Products</span> page you can :-</span> <br>
+            1- Browse the avialable products. <br>
+            2- Filter the products by category. <br>
+            3- Add a new category.
+            4- Add, update or remove a product from the database. <br>
+            <span class="fw-bold">Through the <span class="page-header">Orders</span> page you can :-</span>  <br>
+            1- View the orders made filtered by the customer name. <br>
+            2- View the details of a single order. <br>
+            3- Accept or refuse an order. <br>
+            <span class="fw-bold">Through the <span class="page-header">Reviews</span>  page you can :-</span>  <br>
+            1- View all the orders you have accepted as an admin. <br>
+            2- View the details of the accepted order. <br>
+        </p>
+        <hr>
+        <p class="lead"><span class="badge text-bg-info fs-5">Some features in the app</span><br>
+            <span class="badge text-bg-success me-2">Single page application</span>
+            <span class="badge text-bg-success me-2">Form validation</span>
+            <span class="badge text-bg-success me-2">Notification system</span>
+            <span class="badge text-bg-success me-2">Updated database</span>
+        </p>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+	</div>
+</ng-template>

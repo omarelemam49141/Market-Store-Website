@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "eccomerce-971b5"
+  },
+  "targets": {
+    "eccomerce-971b5": {
+      "hosting": {
+        "online-market": [
+          "eccomerce-971b5"
+        ]
+      }
+    }
+  }
+}

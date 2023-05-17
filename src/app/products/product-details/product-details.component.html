@@ -1,0 +1,45 @@
+<div class="row d-flex justify-content-center">
+    <div class="mt-5" *ngIf="!loading">
+        <div class="card">
+            <div class="row">
+                <div class="col-lg-6 d-flex justify-content-center align-items-center">
+                    <div class="images mt-4 mb-4">
+                        <div class="text-center p-4"> <img id="main-image" class="img-fluid" src="{{product.image}}" width="250" /> </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="product p-4">
+                        <div class="mb-3"> <span class="text-uppercase brand">{{product.category}}</span>
+                            <h2 class="text-uppercase">{{product.title}}</h2>
+                            <div class="price d-flex flex-row align-items-center"> 
+                                <span class="act-price">{{product.price}} LE</span>
+                            </div>
+                        </div>
+                        <p class="about lead">{{product.description}}</p>
+                        <div class="sizes mt-2">
+                            <h5 class="text-uppercase">Rating</h5>
+                            <span class="badge text-bg-warning me-1">{{product.rating.rate}}/5</span>
+                            <span>(reviews : {{product.rating.count}})</span>
+                        </div>
+                        <div class="cart mt-5 d-flex align-items-center justify-content-center" *ngIf="!exist">
+                            <button class="btn btn-success text-uppercase mr-2 px-4 me-2 add" (click)="addProductToCart()">Add to cart</button>
+                            <div class="input-group d-flex w-50 justify-content-end">
+                                <input type="button" value="-" class="button-minus btn changing-amount" (click)="reduceAmount()" [disabled]="amount==1">
+                                <input type="number" inputmode="numeric" class="form-control" min="1" (change)="amount < 1? amount=1: amount=amount" [(ngModel)]="amount">
+                                <input type="button" value="+" class="button-plus btn changing-amount" (click)="addAmount()">
+                            </div>
+                        </div>
+
+                        <div class="cart mt-5 d-flex align-items-center justify-content-center" *ngIf="exist">
+                            <div class="wcf-right"><button class="btn btn-danger remove" (click)="removeFromCart()">Remove from cart</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5" *ngIf="loading">
+        <app-spinner class="d-flex justify-content-center"></app-spinner>
+    </div>
+</div>

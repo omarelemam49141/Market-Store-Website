@@ -1,0 +1,197 @@
+<div class="row" *ngIf="!loading && mode == 'admin'">
+    <div class="col mb-3 d-flex flex-wrap add-btns">
+        <button (click)="openAddProduct(content, 'Add product', 'xl')" class="button-82-pushable" role="button">
+            <span class="button-82-shadow"></span>
+            <span class="button-82-edge"></span>
+            <span class="button-82-front text">
+                Add new product
+            </span>
+        </button>
+
+        <button (click)="openAddProduct(content, 'Add category', 'md')" class="button-82-pushable ms-2" role="button">
+            <span class="button-82-shadow"></span>
+            <span class="button-82-edge"></span>
+            <span class="button-82-front text">
+                Add new category
+            </span>
+        </button>
+    </div>
+</div>
+
+
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">{{addingType}}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click'); modifiedImage=null;" [disabled]="formLoading"></button>
+    </div>
+    <div class="modal-body" *ngIf="!formLoading">
+        <form (ngSubmit)="onSubmit(addingType)" [formGroup]="myForm">
+            <div *ngIf="addingType == 'Add product' || addingType == 'Update product'">
+                <div class="row">
+                    <div class="col-xs-12 col-lg-4">
+                        <!-- Name input -->
+                        <div class="form-outline">
+                            <label class="form-label" for="title">Title</label>
+                            <input formControlName="title" type="text" id="title" class="form-control" minlength="3"/>
+                            <div style="color: red;" *ngIf="!myForm.get('title').valid && myForm.get('title').touched">
+                                <p *ngIf="myForm.get('title').errors['titleIsUsed']">This title is used</p>
+                                <p *ngIf="!myForm.get('title').errors['titleIsUsed']">Can't be empty</p>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="col-xs-12 col-lg-4">
+                        <!-- price input -->
+                        <div class="form-outline">
+                            <label class="form-label" for="price">Price (LE)</label>
+                            <input 
+                            formControlName="price" 
+                            type="number" 
+                            id="price" 
+                            class="form-control" 
+                            min="1" 
+                            name="productPrice" 
+                            [(ngModel)]="productToUpdate?productToUpdate.price:productPrice" 
+                            (change)="productPrice < 1 ? productPrice=1:productPrice=productPrice" />
+                        </div>
+                        <div style="color: red;" *ngIf="!myForm.get('price').valid && myForm.get('price').touched">
+                            <p>Can't be empty</p>
+                        </div>
+                    </div>
+        
+                    <div class="col-xs-12 col-lg-4">
+                        <!-- category input -->
+                        <div class="form-outline">
+                            <app-filtering [title]="'Category'" [items]="categories" [modify]="true" (itemEvent)="categorySelected($event)" [categoryToUpadate]="myForm.get('category').value"></app-filtering>
+                        </div>
+                    </div>
+                </div> 
+    
+                <hr />
+    
+                <div class="row">
+                    <div class="col">
+                        <!-- desc input -->
+                        <div class="form-outline">
+                            <label class="form-label" for="description">Description</label>
+                            <textarea formControlName="description" id="description" class="form-control"></textarea>
+                        </div>
+                        <div style="color: red;" *ngIf="!myForm.get('description').valid && myForm.get('description').touched">
+                            <p>Can't be empty</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <hr>
+    
+                <div class="row">
+                    <app-image-upload (imageEvent)="setImage($event)" [imageUrl]="productToUpdate?productToUpdate.image:modifiedImage"></app-image-upload>
+                </div>
+            </div>
+
+            <div class="form-errors" *ngIf="addingType=='category' &&!myForm.get('newCategory').valid && myForm.get('newCategory').touched">
+                <div class="alert alert-danger" role="alert" *ngIf="!myForm.get('newCategory').errors['categoryExists']">
+                    The category name can't be empty!
+                </div>
+
+                <div class="alert alert-danger" role="alert" *ngIf="myForm.get('newCategory').errors['categoryExists']">
+                    This category already exists! 
+                </div>
+            </div>
+
+            <div *ngIf="addingType == 'Add category'">
+                <div class="row">
+                    <div class="col">
+                        <!-- Name input -->
+                        <div class="form-outline">
+                            <label class="form-label" for="cat">Category name</label>
+                            <input type="text" id="cat" class="form-control" formControlName="newCategory"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <!-- submit input -->
+                    <div class="card mt-3">
+                        <div class="card-body p-4 d-flex flex-wrap flex-column">
+                            <input type="submit" class="btn btn-success w-100 btn-lg" value="{{addingType}}" [disabled]="!myForm.valid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div *ngIf="formLoading" class="my-3 d-flex justify-content-center align-items-center">
+        <app-form-spinner></app-form-spinner>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="modal.close('Close click'); modifiedImage=null;" [disabled]="formLoading">Close</button>
+    </div>
+</ng-template>
+
+
+<div class="row">
+    <app-filtering [title]="'Categories'" [items]="categories" (itemEvent)="filterProducts($event)"></app-filtering>
+</div>
+
+<div *ngIf="!loading && mode == 'admin'">
+    <div class="card rounded-3 mb-4" *ngFor="let product of products">
+        <div class="card-body p-4">
+            <div class="row d-flex justify-content-between align-items-center">
+                <div class="col-lg-2 text-center mb-3 mb-md-0">
+                    <img
+                    src="{{product.image}}"
+                    class="img-fluid rounded-3 image image-admin" alt="image">
+                </div>
+                <div class="col-lg-4">
+                    <p class="lead fw-normal mb-2">{{product.title}}</p>
+                    <p><span class="text-muted">Item Price: </span><span class="badge text-bg-success">{{product.price}} LE</span></p>
+                </div>
+    
+                <div class="amount d-flex col-lg-3">
+                <p><span class="text-muted">Category :</span><span class="fw-bold ms-1">{{product.category}}</span></p>
+                </div>
+    
+                <div class="col-lg-3 mt-2 mt-lg-0 d-flex flex-wrap justify-content-around my-btns">
+                    <button class="btn btn-warning w-50" style="color: white;" (click)="openAddProduct(content, 'Update product', 'xl', product)">Update</button>
+                    <a class="fs-3 text-danger" (click)="confirmDelete(name, product)"><fa-icon [icon]="faDel"></fa-icon></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #name let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title">Item deletion</h4>
+        <button
+            type="button"
+            class="btn-close"
+            aria-describedby="modal-title"
+            (click)="modal.dismiss('Cross click')"
+        ></button>
+    </div>
+    <div class="modal-body">
+        <p>
+            <strong>Are you sure you want to delete <span class="text-primary">{{productToDelete.title}}</span> from database?</strong>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel click')">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="modal.close('Ok click'); deleteProduct(productToDelete)">Ok</button>
+    </div>
+</ng-template>
+
+<div class="row" *ngIf="!loading && mode == 'user'">
+    <div class="col-md-6 col-lg-4 col-xl-3" *ngFor="let pro of products; let i=index">
+        <app-product [product]="pro" [productIndex]="i" [mode]="mode"></app-product>
+    </div>
+</div>
+
+<div class="row mt-5" *ngIf="loading">
+    <app-spinner class="d-flex justify-content-center"></app-spinner>
+</div>

@@ -1,0 +1,182 @@
+<div class="h-100" *ngIf="mode == 'user'">
+  <section class="h-100" style="background-color: #eee;">
+    <div class="container h-100 py-5">
+      <div class="row d-flex justify-content-center align-items-center h-100" *ngIf="!loading">
+        <div class="col-10 text-center" *ngIf="emptyCart">
+            <h3 class="text-muted">Your cart is empty!</h3>
+            <a routerLink="/" class="btn btn-primary btn-lg w-80 mt-3">Add some products</a>
+        </div>
+
+        <div class="col-10" *ngIf="!emptyCart">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-normal mb-0 text-black">Shopping Cart - {{cartProducts.length}} items</h3>
+            <div>
+                <button class="btn btn-danger" (click)="clearCart()">Remove All items</button>
+            </div>
+          </div>
+  
+          <div class="card rounded-3 mb-4" *ngFor="let product of cartProducts">
+            <div class="card-body p-4">
+              <div class="row d-flex justify-content-between align-items-center">
+                <div class="col-lg-2 col-xl-2 text-center">
+                    <img
+                    src="{{product.product.image}}"
+                    class="img-fluid rounded-3 image" alt="image">
+                </div>
+                <div class="col-lg-3 col-xl-3">
+                    <p class="lead fw-normal mb-2">{{product.product.title}}</p>
+                    <p><span class="text-muted">Item Price: </span><span class="badge text-bg-success">{{product.product.price}} LE</span></p>
+                </div>
+
+                <div class="amount d-flex col-lg-3 col-xl-2">
+                    <input type="button" value="-" class="button-minus btn changing-amount" (click)="product.quantity=product.quantity-1; updateCart();" [disabled]="product.quantity == 1">
+                    <input type="number" inputmode="numeric" class="form-control" min="1" (change)="product.quantity<1?product.quantity=1:product.quantity;updateCart()" [(ngModel)]="product.quantity">
+                    <input type="button" value="+" class="button-plus btn changing-amount" (click)="product.quantity=product.quantity+1; updateCart();">
+                </div>
+    
+                <div class="col-lg-2 col-xl-2 offset-lg-1 mt-2 mt-lg-0">
+                    <h5 class="mb-0 fw-bold">{{(product.quantity * product.product.price).toFixed(2)}} LE</h5>
+                </div>
+                <div class="col-lg-1 col-xl-1 text-end">
+                    <a (click)="deletProduct(product)" class="text-danger fs-3"><fa-icon [icon]="faDel"></fa-icon></a>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        <div class="card mb-4">
+            <div class="card-body p-4 d-flex justify-content-between">
+                <h5>Total Amount</h5>
+                <h5 class="fw-bold">{{fixedAmount}} LE</h5>
+            </div>
+        </div>
+  
+        <div class="card">
+            <div class="card-body p-4">
+                <button type="button" class="btn btn-warning btn-lg w-100 text-uppercase light h4" (click)="makeOrder()">Order Now</button>
+            </div>
+        </div>
+  
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<app-spinner *ngIf="loading" class="d-flex justify-content-center mt-5"></app-spinner>
+
+
+<div class="row" *ngIf="mode == 'admin' && !loading">
+  <div class="col-10 text-center mt-5 m-auto" *ngIf="carts.length == 0">
+    <h3 class="text-muted">There are no new orders</h3>
+  </div>
+
+  <div *ngIf="carts.length > 0">
+    <h2>All Orders</h2>
+    <ul class="responsive-table">
+      <li class="table-header fw-bold">
+        <div class="row">
+          <div class="col-12 col-md-3">Customer Name</div>
+          <div class="col-12 col-md-2">Items</div>
+          <div class="col-12 col-md-2">Cart price</div>
+          <div class="col-12 col-md-3">Date</div>
+          <div class="col-12 col-md-2">Details</div>
+        </div>
+      </li>
+      <li class="table-row" *ngFor="let cart of carts">
+        <div class="row align-items-center">
+          <div class="col col-12 col-md-3" data-label="Customer Name">{{cart.client}}</div>
+          <div class="col col-12 col-md-2" data-label="Items">{{cart.cartProducts.length}}</div>
+          <div class="col col-12 col-md-2" data-label="Cart price">{{getCartPrice(cart.cartProducts)}} LE</div>
+          <div class="col col-12 col-md-3" data-label="Date">{{cart.date | date: "short"}}</div>
+          <div class="col col-12 col-md-2" data-label="Details"><fa-icon (click)="openCartDetails(content, cart)" class="fs-3 btn showIcon" data-bs-toggle="modal" data-bs-target="#exampleModal" [icon]="faShow"></fa-icon></div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Cart Details Modal -->
+  <ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">{{cartDetails.client}} order ({{cartDetails.date | date}})</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" [disabled]="orderLoading"></button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="card rounded-3 mb-4" *ngFor="let productDetails of cartDetails.cartProducts">
+        <div class="card-body p-4">
+          <div class="row d-flex justify-content-between align-items-center">
+            <div class="col-lg-2 text-center">
+                <img
+                src="{{productDetails.product.image}}"
+                class="img-fluid rounded-3 image" alt="image">
+            </div>
+            <div class="col-lg-4">
+                <p class="lead fw-normal mb-2">{{productDetails.product.title}}</p>
+                <p><span class="text-muted">Item Price: </span><span class="badge text-bg-success">{{productDetails.product.price}} LE</span></p>
+            </div>
+
+            <div class="amount d-flex col-lg-3">
+              <p><span class="text-muted">Item amount :</span><span class="fw-bold ms-1">{{productDetails.quantity}}</span></p>
+            </div>
+
+            <div class="col-lg-2 offset-lg-1 mt-2 mt-lg-0">
+                <h5 class="mb-0 fw-bold">{{(productDetails.quantity * productDetails.product.price).toFixed(2)}} LE</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body p-4 d-flex justify-content-between flex-wrap">
+            <h5>Total Amount</h5>
+            <h5 class="fw-bold">{{getCartPrice(cartDetails.cartProducts)}} LE</h5>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body p-4 d-flex flex-wrap flex-column">
+            <button type="button" class="btn btn-success btn-lg text-uppercase light h4 acceptBtn" (click)="approveOrder(cartDetails)" [disabled]="orderLoading || removeCartLoading">Accept
+              <fa-icon [icon]="faAccept" *ngIf="!orderLoading" class="ms-1"></fa-icon>
+              <div class="lds-ring" *ngIf="orderLoading"><div></div><div></div><div></div><div></div></div>
+            </button>
+            <button type="button" class="btn btn-danger btn-lg text-uppercase light h4 acceptBtn" [disabled]="orderLoading || removeCartLoading" (click)="declineProcess(decline)">Decline
+              <fa-icon [icon]="faDecline" *ngIf="!removeCartLoading" class="ms-1"></fa-icon>
+              <div class="lds-ring" *ngIf="removeCartLoading"><div></div><div></div><div></div><div></div></div>
+            </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" #closeBtn (click)="modal.close('Close click')" [disabled]="orderLoading || removeCartLoading">Close</button>
+    </div>
+  </ng-template>
+
+  <!-- decline modal -->
+  <ng-template #decline let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Decline {{cartDetails.client}} order</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')" [disabled]="declineOrderLoading"></button>
+    </div>
+    <div class="modal-body">
+      <form class="form" method="post">
+        <label for="declineMessage" class="lead mb-1">Tell the client why you refused his order</label>
+        <textarea name="declineMessage" id="declineMessage" class="form-control mb-3" required [(ngModel)]="declineMessage" (change)="checkValidity()" [ngClass]="{'requiredInput': messageRequired}"></textarea>
+        <p class="text-danger mb-3" *ngIf="messageRequired">This field is required</p>
+        <div class="card">
+          <div class="card-body p-4 d-flex flex-wrap flex-column">
+              <button type="submit" class="btn btn-danger btn-lg text-uppercase light h4 acceptBtn" [disabled]="declineOrderLoading" (click)="declineOrder(cartDetails)">
+                send message
+                <div class="lds-ring" *ngIf="declineOrderLoading"><div></div><div></div><div></div><div></div></div>
+              </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" #closeBtn (click)="modal.close('Close click')" [disabled]="declineOrderLoading">Close</button>
+    </div>
+  </ng-template>
+</div>

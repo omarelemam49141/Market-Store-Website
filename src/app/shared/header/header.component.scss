@@ -1,0 +1,29 @@
+.navbar {
+    transition: all 0.3s ease;
+    .navbar-brand {
+        font-size: 30px;
+        font-weight: 500;
+        font-family: 'Changa', sans-serif;
+    }
+
+    .nav-link {
+        font-size: 22px;
+        font-weight: 400;
+        font-family: 'Changa', sans-serif;
+    }
+}
+
+.dark-modal .modal-content {
+    background-color: #292b2c;
+    color: white;
+}
+.dark-modal .close {
+    color: white;
+}
+.light-blue-backdrop {
+    background-color: #5cb3fd;
+}
+
+.page-header {
+    color: #084298;
+}

@@ -1,0 +1,6 @@
+<app-header></app-header>
+<div class="container">
+  <app-spinner *ngIf="isLoading" class="mt-5"></app-spinner>
+  <router-outlet *ngIf="!isLoading"></router-outlet>
+</div>
+
